@@ -1,7 +1,17 @@
 import { useState, useRef } from "react";
 import { api } from "../api";
 
-const API_URL = (import.meta.env.VITE_API_URL || "http://localhost:5001/api").replace(/\/api\/?$/, "");
+// Sanitize the VITE_API_URL env var to strip any accidental "VITE_API_URL=" prefix
+// Railway/Docker sometimes pass the value with the key name concatenated (e.g. "VITE_API_URL=https://...")
+function getApiBaseUrl() {
+  const raw = (import.meta.env.VITE_API_URL || "http://localhost:5001/api").replace(/\/api\/?$/, "");
+  // Strip any leading "VITE_API_URL=" or "VITE_APP_API_URL=" prefix if present
+  const cleaned = raw.replace(/^VITE_(APP_)?API_URL\s*=\s*/i, "");
+  // Remove trailing slash
+  return cleaned.replace(/\/+$/, "");
+}
+
+const API_URL = getApiBaseUrl();
 
 export default function ImageInput({ label, value, onChange }) {
   const [source, setSource] = useState(value && value.startsWith("/uploads") ? "upload" : "url");

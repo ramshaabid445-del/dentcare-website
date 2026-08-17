@@ -3,14 +3,19 @@ FROM node:18-alpine AS builder
 
 WORKDIR /app
 
-# Copy package files
-COPY package*.json ./
+# Copy only package files from frontend
+COPY frontend/package*.json ./
 
 # Install dependencies
 RUN npm ci
 
-# Copy source
-COPY . .
+# Copy frontend source
+COPY frontend/src ./src
+COPY frontend/public ./public
+COPY frontend/index.html ./index.html
+COPY frontend/vite.config.js ./vite.config.js
+COPY frontend/tailwind.config.js ./tailwind.config.js
+COPY frontend/postcss.config.js ./postcss.config.js
 
 # Build
 RUN npm run build

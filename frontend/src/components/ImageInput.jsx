@@ -1,7 +1,7 @@
 import { useState, useRef } from "react";
 import { api } from "../api";
 
-const API_URL = "http://localhost:5001";
+const API_URL = (import.meta.env.VITE_API_URL || "http://localhost:5001/api").replace(/\/api\/?$/, "");
 
 export default function ImageInput({ label, value, onChange }) {
   const [source, setSource] = useState(value && value.startsWith("/uploads") ? "upload" : "url");

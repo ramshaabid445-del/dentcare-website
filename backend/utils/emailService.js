@@ -1,37 +1,18 @@
-import nodemailer from "nodemailer";
+import { Resend } from "resend";
 
-// Create reusable transporter
-const createTransporter = () => {
-  return nodemailer.createTransport({
-    host: "smtp.gmail.com",
-    port: 465,
-    secure: true,
-    // Force IPv4 only. Railway containers often lack IPv6 outbound support,
-    // which causes "connect ENETUNREACH <ipv6-address>" errors on Gmail SMTP.
-    family: 4,
-    auth: {
-      user: process.env.MAIL_USER,
-      pass: process.env.MAIL_APP_PASSWORD,
-    },
-  });
-};
+// Initialize Resend client (uses HTTPS API on port 443, not SMTP)
+const resend = new Resend(process.env.RESEND_API_KEY);
 
 // Send appointment notification to admin
 export const sendAppointmentNotification = async (appointment) => {
   try {
     console.log("📧 Attempting to send appointment notification...");
-    console.log("Email Config - USER:", process.env.MAIL_USER ? "✓ SET" : "✗ NOT SET");
-    console.log("Email Config - PASSWORD:", process.env.MAIL_APP_PASSWORD ? "✓ SET" : "✗ NOT SET");
+    console.log("Email Config - RESEND_API_KEY:", process.env.RESEND_API_KEY ? "✓ SET" : "✗ NOT SET");
     console.log("Email Config - ADMIN_EMAIL:", process.env.ADMIN_EMAIL);
-    if (!process.env.MAIL_USER || !process.env.MAIL_APP_PASSWORD) {
-      console.error("❌ Email credentials not configured. Skipping email notification.");
+    if (!process.env.RESEND_API_KEY) {
+      console.error("❌ Resend API key not configured. Skipping email notification.");
       return { success: false, reason: "Email not configured" };
     }
-    const transporter = createTransporter();
-    // Test connection
-    console.log("🔗 Testing email connection...");
-    await transporter.verify();
-    console.log("✓ Email connection verified");
     const appointmentDate = new Date(appointment.date).toLocaleDateString("en-US", {
       weekday: "long",
       year: "numeric",
@@ -109,15 +90,18 @@ export const sendAppointmentNotification = async (appointment) => {
         </div>
       </div>
     `;
-    const mailOptions = {
-      from: `"${process.env.MAIL_FROM_NAME || "MedCare"}" <${process.env.MAIL_USER}>`,
-      to: process.env.ADMIN_EMAIL || process.env.MAIL_USER,
+    console.log("📬 Sending email to:", process.env.ADMIN_EMAIL);
+    const { data, error } = await resend.emails.send({
+      from: "MedCare <onboarding@resend.dev>",
+      to: process.env.ADMIN_EMAIL,
       subject: `New Appointment Booking – MedCare | ${appointment.department}`,
       html: htmlContent,
-    };
-    console.log("📬 Sending email to:", mailOptions.to);
-    const info = await transporter.sendMail(mailOptions);
-    console.log("✅ Appointment notification email sent successfully! Message ID:", info.messageId);
+    });
+    if (error) {
+      console.error("❌ Resend API error:", error);
+      return { success: false, reason: error.message };
+    }
+    console.log("✅ Appointment notification email sent successfully! ID:", data?.id);
     return { success: true };
   } catch (error) {
     console.error("❌ Error sending appointment email:", error.message);
@@ -129,11 +113,10 @@ export const sendAppointmentNotification = async (appointment) => {
 // Send appointment confirmation email to patient
 export const sendAppointmentConfirmation = async (appointment, status = "confirmed") => {
   try {
-    if (!process.env.MAIL_USER || !process.env.MAIL_APP_PASSWORD) {
-      console.warn("Email credentials not configured. Skipping confirmation email.");
+    if (!process.env.RESEND_API_KEY) {
+      console.warn("Resend API key not configured. Skipping confirmation email.");
       return { success: false, reason: "Email not configured" };
     }
-    const transporter = createTransporter();
     const appointmentDate = new Date(appointment.date).toLocaleDateString("en-US", {
       weekday: "long",
       year: "numeric",
@@ -193,14 +176,17 @@ export const sendAppointmentConfirmation = async (appointment, status = "confirm
         </div>
       </div>
     `;
-    const mailOptions = {
-      from: `"${process.env.MAIL_FROM_NAME || "MedCare"}" <${process.env.MAIL_USER}>`,
+    const { data, error } = await resend.emails.send({
+      from: "MedCare <onboarding@resend.dev>",
       to: appointment.email,
       subject: `Appointment ${status.charAt(0).toUpperCase() + status.slice(1)} – MedCare`,
       html: htmlContent,
-    };
-    const info = await transporter.sendMail(mailOptions);
-    console.log("Appointment confirmation email sent:", info.messageId);
+    });
+    if (error) {
+      console.error("❌ Resend API error:", error);
+      return { success: false, reason: error.message };
+    }
+    console.log("✅ Appointment confirmation email sent! ID:", data?.id);
     return { success: true };
   } catch (error) {
     console.error("Error sending confirmation email:", error.message);

@@ -1,5 +1,5 @@
-@import "tailwindcss";
 @import url('https://fonts.googleapis.com/css2?family=Fraunces:wght@600;700;800&family=Inter:wght@400;500;600;700&display=swap');
+@import "tailwindcss";
 
 @theme {
   --color-cream: #FCFBE9;
@@ -17,8 +17,38 @@
 body {
   font-family: var(--font-body);
   color: var(--color-brand-navy);
+  overflow-x: hidden;
 }
 
 h1, h2, h3, h4 {
   font-family: var(--font-heading);
+}
+
+/* Global responsive fixes */
+html {
+  scroll-behavior: smooth;
+  overflow-x: hidden;
+}
+
+/* Prevent horizontal scroll on all devices - images and media */
+img, video, iframe {
+  max-width: 100%;
+}
+
+/* Ensure SVG icons don't overflow their containers */
+svg {
+  flex-shrink: 0;
+}
+
+/* Ensure text containers break properly on small screens */
+p, h1, h2, h3, h4, h5, h6, span, a {
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+}
+
+/* Better touch targets on mobile */
+@media (max-width: 640px) {
+  button, a {
+    -webkit-tap-highlight-color: transparent;
+  }
 }

@@ -1,0 +1,16 @@
+# Environment secrets
+.env
+.env.*
+!.env.example
+backend/.env
+frontend/.env
+
+# Dependencies and generated output
+**/node_modules/
+**/dist/
+backend/uploads/
+
+# Logs and editor files
+*.log
+.DS_Store
+.vscode/

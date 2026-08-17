@@ -1,6 +1,9 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { Link, useNavigate } from "react-router-dom";
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
+import PlanSelectionModal from "../components/PlanSelectionModal";
+import { api } from "../api";
 
 const services = [
   {
@@ -28,35 +31,39 @@ const services = [
     title: "Support",
     description:
       "We have implemented a number of Safety protocols and measures To ensure the safety of bath our patients and our team doctor Of dentist.",
-    iconType: "consultancy",
+    iconType: "support",
     accent: true,
   },
 ];
 
 const doctors = [
   {
-    name: "Christopher Dyer",
-    specialty: "Heart Specials",
+    name: "Dr. Christopher Dyer",
+    specialty: "Cardiologist",
     photo:
-      "https://plus.unsplash.com/premium_photo-1661740497193-6aeca35e1b01?w=300&h=300&fit=crop&crop=faces&auto=format&q=80",
+      "https://images.unsplash.com/photo-1582750433449-648ed127bb54?w=300&h=300&fit=crop&crop=faces&auto=format&q=80",
+    slug: "christopher-dyer",
   },
   {
-    name: "Madeleine Bond",
-    specialty: "Cancer",
+    name: "Dr. Madeleine Bond",
+    specialty: "Oncologist",
     photo:
-      "https://images.unsplash.com/photo-1758691463582-11aea602cd4a?w=300&h=300&fit=crop&crop=faces&auto=format&q=80",
+      "https://images.unsplash.com/photo-1573497019940-1c28c88b4f3e?w=300&h=300&fit=crop&crop=faces&auto=format&q=80",
+    slug: "madeleine-bond",
   },
   {
-    name: "Bermadette Carr",
-    specialty: "Medicine",
+    name: "Dr. Bermadette Carr",
+    specialty: "General Medicine",
     photo:
-      "https://plus.unsplash.com/premium_photo-1667520580687-a85c9080a9bc?w=300&h=300&fit=crop&crop=faces&auto=format&q=80",
+      "https://images.unsplash.com/photo-1580489944761-15a19d654956?w=300&h=300&fit=crop&crop=faces&auto=format&q=80",
+    slug: "bermadette-carr",
   },
   {
-    name: "Nichalas Allan",
-    specialty: "Dentist Surgeon",
+    name: "Dr. Nichalas Allan",
+    specialty: "Dental Surgeon",
     photo:
-      "https://plus.unsplash.com/premium_photo-1702598946543-b70f1059b055?w=300&h=300&fit=crop&crop=faces&auto=format&q=80",
+      "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=300&h=300&fit=crop&crop=faces&auto=format&q=80",
+    slug: "nichalas-allan",
   },
 ];
 
@@ -175,6 +182,7 @@ const blogPosts = [
     excerpt: "Our facily is equppwd with stare of the a art techonolahy to measures .",
     image:
       "https://plus.unsplash.com/premium_photo-1667520569693-c61155e16869?w=500&h=320&fit=crop&auto=format&q=80",
+    link: "/blogs/emergency-medicine-research-course",
   },
   {
     day: "16",
@@ -185,6 +193,7 @@ const blogPosts = [
     excerpt: "Our facily is equppwd with stare of the a art techonolahy to measures .",
     image:
       "https://plus.unsplash.com/premium_photo-1661286686818-5823db33959d?w=500&h=320&fit=crop&auto=format&q=80",
+    link: "/blogs/advance-care-planning-information-session",
   },
   {
     day: "23",
@@ -195,6 +204,7 @@ const blogPosts = [
     excerpt: "Our facily is equppwd with stare of the a art techonolahy to measures .",
     image:
       "https://plus.unsplash.com/premium_photo-1702598946543-b70f1059b055?w=500&h=320&fit=crop&auto=format&q=80",
+    link: "/blogs/connect-with-doctor-for-treatment",
   },
 ];
 
@@ -227,10 +237,15 @@ function PricingIcon({ type }) {
   );
 }
 
-function ServiceIcon({ type, color }) {
+/* ServiceIcon now always draws with stroke="currentColor" (same pattern as
+   PricingIcon) so the color follows the parent's text color class. This lets
+   us flip the icon color purely via Tailwind's group-hover:text-* utility
+   instead of passing a hardcoded hex color — which is what makes the
+   green/white swap hover-only instead of a fixed alternating style. */
+function ServiceIcon({ type }) {
   if (type === "diagnosis") {
     return (
-      <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
         <rect x="5" y="3" width="14" height="18" rx="2" />
         <path d="M9 3V2.5A1.5 1.5 0 0 1 10.5 1h3A1.5 1.5 0 0 1 15 2.5V3" />
         <path d="M7.5 13h2l1.5-3 2 6 1.5-3h2" />
@@ -239,57 +254,208 @@ function ServiceIcon({ type, color }) {
   }
   if (type === "consultancy") {
     return (
-      <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
         <path d="M5 3v6a5 5 0 0 0 10 0V3" />
         <path d="M10 15v1.5a4.5 4.5 0 0 0 9 0v-1" />
         <circle cx="19" cy="15.5" r="1.6" />
       </svg>
     );
   }
+  if (type === "tracking") {
+    return (
+      <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <rect x="3" y="3" width="18" height="18" rx="2" />
+        <path d="M7 15l3-4 3 3 4-6" />
+      </svg>
+    );
+  }
+  if (type === "support") {
+    return (
+      <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <circle cx="12" cy="12" r="10" />
+        <path d="M4 12a8 8 0 0 0 5 7.5V14h6v5.5A8 8 0 0 0 20 12" />
+        <path d="M9 12h6M12 9v6" />
+      </svg>
+    );
+  }
   return (
-    <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
       <rect x="3" y="3" width="18" height="18" rx="2" />
       <path d="M7 15l3-4 3 3 4-6" />
     </svg>
   );
 }
 
+function BlogDateBadge({ post }) {
+  const date = post.createdAt ? new Date(post.createdAt) : null;
+  const hasValidDate = date && !Number.isNaN(date.getTime());
+  const day = hasValidDate ? String(date.getDate()).padStart(2, "0") : post.day;
+  const month = hasValidDate
+    ? date.toLocaleString("en-US", { month: "short" })
+    : post.month;
+
+  return (
+    <div className="absolute top-4 left-4 rounded-lg px-3 py-1.5 text-center shadow-md" style={{ backgroundColor: "#A6CE39" }}>
+      <p className="text-base font-extrabold font-heading text-white leading-none">{day}</p>
+      <p className="text-xs text-white/90 leading-none mt-0.5">{month}</p>
+    </div>
+  );
+}
+
 export default function Home() {
-  const [page, setPage] = useState(0);
+  const [servicesPage, setServicesPage] = useState(0);
   const [doctorsPage, setDoctorsPage] = useState(0);
   const [openFaq, setOpenFaq] = useState(0);
   const [testimonialsPage, setTestimonialsPage] = useState(0);
+  const [selectedPlan, setSelectedPlan] = useState(null);
+  const [adultCount, setAdultCount] = useState(1);
+  const [selectedTab, setSelectedTab] = useState("General");
+  const [homeContent, setHomeContent] = useState(null);
+  const [cmsBlogs, setCmsBlogs] = useState([]);
+  const [cmsDoctors, setCmsDoctors] = useState([]);
+  const [cmsServices, setCmsServices] = useState([]);
+  const [cmsPricing, setCmsPricing] = useState([]);
+  const [cmsTestimonials, setCmsTestimonials] = useState([]);
+  const [approvedComments, setApprovedComments] = useState([]);
+  // Newsletter subscribe state
+  const [subscribeEmail, setSubscribeEmail] = useState("");
+  const [subscribeStatus, setSubscribeStatus] = useState("");
+  const [subscribeError, setSubscribeError] = useState("");
+  const [subscribing, setSubscribing] = useState(false);
+  const navigate = useNavigate();
+
+  const handleSubscribe = async (e) => {
+    e.preventDefault();
+    if (!subscribeEmail) return;
+    setSubscribing(true);
+    setSubscribeStatus("");
+    setSubscribeError("");
+    try {
+      const data = await api.subscribeToNewsletter({ email: subscribeEmail });
+      setSubscribeStatus(data.message || "Successfully subscribed!");
+      setSubscribeEmail("");
+    } catch (err) {
+      setSubscribeError(err.message || "Failed to subscribe. Please try again.");
+    } finally {
+      setSubscribing(false);
+    }
+  };
+
+  const doctorCards = [...doctors, ...cmsDoctors];
+  const serviceCards = [...services, ...cmsServices];
+  const pricingCards = [...pricingPlans, ...cmsPricing].slice(0, 3);
+
+  const approvedTestimonials = approvedComments.map((comment) => ({
+    _id: comment._id || `approved-${comment.name}`,
+    name: comment.name,
+    role: "Happy Patient",
+    quote: comment.message,
+    image: comment.profileImage || "/images/icon.jpeg",
+    rating: 5,
+  }));
+
+  const testimonialCards = [...testimonials, ...approvedTestimonials];
+
+  useEffect(() => {
+    const loadHomeContent = async () => {
+      try {
+        const data = await api.getHomeContent();
+        setHomeContent(data.content);
+      } catch (error) {
+        console.warn("Home content API unavailable, using defaults", error);
+      }
+    };
+    loadHomeContent();
+  }, []);
+
+  useEffect(() => {
+    api.getApprovedComments().then((data) => setApprovedComments(data.comments)).catch(() => {});
+  }, []);
+
+  useEffect(() => {
+    const loadCms = async () => {
+      try {
+        const [blogs, doctors, servicesData, pricing, testimonials] = await Promise.all([
+          api.cmsPublic("blogs").getAll(),
+          api.cmsPublic("doctors").getAll(),
+          api.cmsPublic("services").getAll(),
+          api.cmsPublic("pricing").getAll(),
+          api.cmsPublic("testimonials").getAll(),
+        ]);
+        const cmsBlogsWithLinks = blogs.items
+          .filter((b) => b.showOnHome && b.status === "published")
+          .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
+          .map((b) => ({
+            ...b,
+            link: `/blogs/${b.slug}`,
+          }));
+        setCmsBlogs(cmsBlogsWithLinks);
+        setCmsDoctors(doctors.items.filter((d) => d.showOnHome));
+        setCmsServices(servicesData.items.filter((s) => s.showOnHome));
+        setCmsPricing(pricing.items.filter((p) => p.showOnHome));
+        setCmsTestimonials(testimonials.items.filter((t) => t.showOnHome));
+      } catch (error) {
+        console.warn("CMS data unavailable, using defaults", error);
+      }
+    };
+    loadCms();
+  }, []);
+
+  const handleFindDoctors = () => {
+    navigate(`/doctor?specialty=${encodeURIComponent(selectedTab)}`);
+  };
 
   return (
-    <div className="w-full overflow-x-hidden">
+    <div className="home-page w-full overflow-x-hidden">
+      <style>{`@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;700&family=Roboto:wght@400;500&display=swap');
+        .home-page {
+          font-family: 'Roboto', sans-serif;
+        }
+        .home-page h1, .home-page h2, .home-page h3, .home-page h4 {
+          font-family: 'Playfair Display', serif !important;
+          font-weight: 700;
+          letter-spacing: -0.01em;
+          line-height: 1.15;
+        }
+        .home-page p, .home-page li, .home-page span, .home-page a {
+          font-family: 'Roboto', sans-serif;
+        }
+        .home-page p.text-brand-gray {
+          font-weight: 400;
+          line-height: 1.6;
+        }
+        .home-page p.text-brand-green.font-semibold.text-sm.tracking-wide {
+          font-weight: 500;
+          text-transform: uppercase;
+          letter-spacing: 0.08em;
+        }`}</style>
       <Navbar />
 
       {/* ---------- HERO ---------- */}
       <section className="pt-32 bg-cream">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-28 grid lg:grid-cols-2 gap-10 items-center">
+        <div className="max-w-7xl mx-auto pl-[68px] pr-4 sm:pl-[76px] sm:pr-6 lg:pl-[84px] lg:pr-8 pb-28 grid lg:grid-cols-2 gap-10 items-center">
           <div>
             <h1 className="text-4xl sm:text-5xl font-extrabold font-heading leading-tight text-brand-navy">
-              We Care About Your Dental Health
+              {homeContent?.hero?.heading || "We Care About Your Dental Health"}
             </h1>
             <p className="mt-5 text-brand-gray leading-relaxed max-w-md">
-              We have implemented a number of Safety protocols and measures
-              To ensure the safety of bath our patients and our team doctor
-              Of dentist also very good doctor for dental problems
+              {homeContent?.hero?.description ||
+                "We have implemented a number of Safety protocols and measures To ensure the safety of bath our patients and our team doctor Of dentist also very good doctor for dental problems"}
             </p>
-            <a
-              href="#"
+            <Link
+              to={homeContent?.hero?.ctaLink || "/contact"}
               className="mt-7 inline-flex items-center gap-2 bg-brand-green hover:bg-brand-green-dark transition-colors text-white text-sm font-semibold px-7 py-4 rounded-xl"
             >
-              Get Started
+              {homeContent?.hero?.ctaText || "Get Started"}
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
                 <path d="M5 12h14M13 6l6 6-6 6" />
               </svg>
-            </a>
+            </Link>
           </div>
 
           <div className="relative flex justify-center lg:justify-end lg:-mb-20">
             <img
-              src="/images/home1.jpeg"
+              src={homeContent?.hero?.image || "/images/home1.jpeg"}
               alt="Doctor holding a stethoscope"
               className="w-full max-w-lg object-contain"
             />
@@ -297,7 +463,7 @@ export default function Home() {
         </div>
 
         {/* search bar */}
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 -mt-16 relative z-30">
+        <div className="max-w-7xl mx-auto pl-[68px] pr-4 sm:pl-[76px] sm:pr-6 lg:pl-[84px] lg:pr-8 -mt-16 relative z-30">
           <div className="bg-white rounded-2xl shadow-xl p-5 sm:p-6">
             <div className="flex flex-wrap gap-2 pb-4 mb-4 border-b border-gray-100 text-sm font-medium">
               {[
@@ -320,7 +486,10 @@ export default function Home() {
               ].map((tab) => (
                 <button
                   key={tab.label}
-                  className="flex items-center gap-2 whitespace-nowrap px-4 py-2 rounded-full transition-colors hover:bg-cream hover:text-brand-green text-brand-gray"
+                  onClick={() => setSelectedTab(tab.label)}
+                  className={`flex items-center gap-2 whitespace-nowrap px-4 py-2 rounded-full transition-colors text-brand-gray ${
+                    selectedTab === tab.label ? "bg-cream text-brand-green font-semibold" : "hover:bg-cream hover:text-brand-green"
+                  }`}
                 >
                   <img src={tab.iconSrc} alt="" className="w-4 h-4 shrink-0" />
                   {tab.label}
@@ -338,7 +507,7 @@ export default function Home() {
                 </div>
                 <div className="min-w-0">
                   <p className="text-xs text-brand-gray">Location</p>
-                  <p className="text-sm font-semibold truncate">Yogyakarta, Indonesia</p>
+                  <p className="text-sm font-semibold truncate">{homeContent?.location || "Yogyakarta, Indonesia"}</p>
                 </div>
               </div>
 
@@ -353,7 +522,7 @@ export default function Home() {
                 </div>
                 <div className="min-w-0">
                   <p className="text-xs text-brand-gray">Appointment Date</p>
-                  <p className="text-sm font-semibold truncate">04 August 2022</p>
+                  <p className="text-sm font-semibold truncate">{homeContent?.appointmentDate || "04 August 2022"}</p>
                 </div>
               </div>
 
@@ -369,14 +538,17 @@ export default function Home() {
                 <div className="min-w-0 flex-1">
                   <p className="text-xs text-brand-gray">Who</p>
                   <div className="flex items-center gap-2">
-                    <p className="text-sm font-semibold">1 Adult</p>
-                    <button className="ml-1 w-5 h-5 rounded-full border border-gray-300 flex items-center justify-center text-xs text-brand-gray">+</button>
-                    <button className="w-5 h-5 rounded-full border border-gray-300 flex items-center justify-center text-xs text-brand-gray">-</button>
+                    <p className="text-sm font-semibold">{adultCount} Adult{adultCount > 1 ? "s" : ""}</p>
+                    <button onClick={() => setAdultCount((n) => Math.min(n + 1, 10))} className="ml-1 w-5 h-5 rounded-full border border-gray-300 flex items-center justify-center text-xs text-brand-gray hover:bg-brand-green hover:text-white hover:border-brand-green transition-colors">+</button>
+                    <button onClick={() => setAdultCount((n) => Math.max(n - 1, 1))} className="w-5 h-5 rounded-full border border-gray-300 flex items-center justify-center text-xs text-brand-gray hover:bg-brand-green hover:text-white hover:border-brand-green transition-colors">-</button>
                   </div>
                 </div>
               </div>
 
-              <button className="flex items-center justify-center gap-2 bg-brand-green hover:bg-brand-green-dark transition-colors text-white text-sm font-semibold px-7 py-4 rounded-xl whitespace-nowrap">
+              <button
+                onClick={handleFindDoctors}
+                className="flex items-center justify-center gap-2 bg-brand-green hover:bg-brand-green-dark transition-colors text-white text-sm font-semibold px-7 py-4 rounded-xl whitespace-nowrap cursor-pointer"
+              >
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
                   <circle cx="11" cy="11" r="7" />
                   <path d="m21 21-4.3-4.3" />
@@ -390,7 +562,7 @@ export default function Home() {
 
       {/* ---------- SERVICES ---------- */}
       <section className="py-20 bg-white">
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+        <div className="max-w-7xl mx-auto pl-[68px] pr-4 sm:pl-[76px] sm:pr-6 lg:pl-[84px] lg:pr-8 text-center">
           <p className="text-brand-green font-semibold text-sm tracking-wide mb-3">| OUR SERVICES</p>
           <h2 className="text-3xl sm:text-4xl font-extrabold font-heading text-brand-navy max-w-2xl mx-auto">
             Best Medical Services Makes You Happy
@@ -400,57 +572,76 @@ export default function Home() {
             patients and our team doctor Of dentist also very good doctor for dental problem
           </p>
 
-          <div className="mt-16 grid sm:grid-cols-3 gap-6">
-            {services.slice(page, page + 3).map((service) => (
-              <div
-                key={service.title}
-                className={`relative rounded-2xl pt-14 pb-8 px-8 text-left transition-colors border ${
-                  service.accent
-                    ? "bg-brand-green text-white shadow-xl border-brand-green"
-                    : "bg-white text-brand-navy shadow-md border-gray-100"
-                }`}
-              >
-                <div
-                  className={`absolute -top-8 left-8 w-16 h-16 rounded-full flex items-center justify-center shadow-md ${
-                    service.accent ? "bg-white" : "bg-brand-green"
-                  }`}
-                >
-                  <ServiceIcon type={service.iconType} color={service.accent ? "#5DA15C" : "#FFFFFF"} />
-                </div>
-                <h3 className="text-xl font-bold font-heading mb-3">{service.title}</h3>
-                <p className={`text-sm leading-relaxed ${service.accent ? "text-white/90" : "text-brand-gray"}`}>
-                  {service.description}
-                </p>
-              </div>
-            ))}
-          </div>
+          {(() => {
+            const allServices = serviceCards;
+            const visibleServices = allServices.slice(servicesPage * 3, servicesPage * 3 + 3);
+            const maxPage = Math.max(0, allServices.length - 3);
 
-          <div className="mt-10 flex items-center justify-center gap-4">
-            <button
-              onClick={() => setPage((p) => Math.max(p - 1, 0))}
-              className="w-10 h-10 rounded-full bg-brand-green flex items-center justify-center text-white cursor-pointer"
-              aria-label="Previous"
-            >
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
-                <path d="M15 18l-6-6 6-6" />
-              </svg>
-            </button>
-            <button
-              onClick={() => setPage((p) => Math.min(p + 1, services.length - 3))}
-              className="w-10 h-10 rounded-full bg-white border border-gray-200 flex items-center justify-center text-brand-green cursor-pointer"
-              aria-label="Next"
-            >
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
-                <path d="M9 18l6-6-6-6" />
-              </svg>
-            </button>
-          </div>
+            return (
+              <>
+                <div className="mt-16 grid sm:grid-cols-3 gap-6 items-stretch">
+                  {visibleServices.map((service, idx) => {
+                    return (
+                      <div
+                        key={service._id || service.title || service.name}
+                        className="group relative rounded-2xl pt-14 pb-8 px-8 text-left transition-colors duration-300 border min-h-[280px] flex flex-col bg-white text-brand-navy shadow-md border-gray-100 hover:bg-brand-green hover:border-brand-green hover:shadow-xl cursor-pointer"
+                      >
+                        <div className="absolute -top-8 left-8 w-16 h-16 rounded-full flex items-center justify-center shadow-md bg-brand-green text-white transition-colors group-hover:bg-white group-hover:text-brand-green">
+                          <ServiceIcon
+                            type={service.iconType || (() => {
+                              const name = (service.name || service.title || "").toLowerCase();
+                              if (name.includes("diagnos")) return "diagnosis";
+                              if (name.includes("consult")) return "consultancy";
+                              if (name.includes("track")) return "tracking";
+                              if (name.includes("support")) return "support";
+                              return idx === 0 ? "diagnosis" : idx === 1 ? "consultancy" : "tracking";
+                            })()}
+                          />
+                        </div>
+                        <h3 className="text-xl font-bold font-heading mb-3 transition-colors group-hover:text-white">{service.name || service.title}</h3>
+                        <p className="text-sm leading-relaxed line-clamp-4 text-brand-gray transition-colors group-hover:text-white/90">
+                          {service.shortDescription || service.description}
+                        </p>
+                      </div>
+                    );
+                  })}
+                </div>
+
+                <div className="mt-10 flex items-center justify-center gap-4">
+                  <button
+                    onClick={() => setServicesPage((p) => Math.max(p - 1, 0))}
+                    disabled={servicesPage === 0}
+                    className="w-10 h-10 rounded-full bg-brand-green flex items-center justify-center text-white cursor-pointer disabled:cursor-not-allowed"
+                    aria-label="Previous"
+                  >
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                      <path d="M15 18l-6-6 6-6" />
+                    </svg>
+                  </button>
+                  <button
+                    onClick={() => setServicesPage((p) => Math.min(p + 1, maxPage))}
+                    disabled={servicesPage >= maxPage}
+                    className={`w-10 h-10 rounded-full flex items-center justify-center border transition-colors cursor-pointer disabled:cursor-not-allowed ${
+                      servicesPage >= maxPage
+                        ? "bg-white border-gray-200 text-gray-300"
+                        : "bg-white border-gray-200 text-brand-green hover:border-brand-green"
+                    }`}
+                    aria-label="Next"
+                  >
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                      <path d="M9 18l6-6-6-6" />
+                    </svg>
+                  </button>
+                </div>
+              </>
+            );
+          })()}
         </div>
       </section>
 
       {/* ---------- ABOUT US ---------- */}
       <section className="py-20 bg-about-bg">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 grid lg:grid-cols-2 gap-14 items-center">
+        <div className="max-w-7xl mx-auto pl-[68px] pr-4 sm:pl-[76px] sm:pr-6 lg:pl-[84px] lg:pr-8 grid lg:grid-cols-2 gap-14 items-center">
           <div>
             <p className="text-brand-green font-semibold text-sm tracking-wide mb-3">| ABOUT US</p>
             <h2 className="text-3xl sm:text-4xl font-extrabold font-heading text-brand-navy leading-tight">
@@ -461,18 +652,18 @@ export default function Home() {
               patients and our team doctor Of dentist also very good doctor for dental problem
             </p>
 
-            <div className="mt-6 max-w-[260px]">
+            <div className="mt-6 max-w-md w-full -ml-[12%]">
               <img
                 src="/images/aboutus.jpeg"
                 alt="About our clinic"
-                className="w-full rounded-xl object-cover"
+                className="w-[95%] rounded-xl object-cover"
               />
             </div>
           </div>
 
           <div className="relative flex justify-center lg:justify-end">
             <img
-              src="/images/home2.jpeg"
+              src={homeContent?.aboutDoctorImage || "/images/home2.jpeg"}
               alt="Doctor holding medicine"
               className="w-full max-w-md rounded-3xl object-cover"
             />
@@ -482,10 +673,10 @@ export default function Home() {
 
       {/* ---------- WHY CHOOSE US ---------- */}
       <section className="py-20" style={{ backgroundColor: "#ffffff" }}>
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 grid lg:grid-cols-2 gap-14 items-center">
+        <div className="max-w-7xl mx-auto pl-[68px] pr-4 sm:pl-[76px] sm:pr-6 lg:pl-[84px] lg:pr-8 grid lg:grid-cols-2 gap-14 items-center">
           <div className="relative flex justify-center lg:justify-start">
             <img
-              src="/images/home3.jpeg"
+              src={homeContent?.whyChooseUs?.image || "/images/home3.jpeg"}
               alt="Doctor with stethoscope"
               className="w-full max-w-md object-contain"
             />
@@ -494,11 +685,11 @@ export default function Home() {
           <div>
             <p className="text-brand-green font-semibold text-sm tracking-wide mb-3">| WHY CHOOSE US</p>
             <h2 className="text-3xl sm:text-4xl font-extrabold font-heading text-brand-navy leading-tight">
-              A Warm Welcome and a beautiful Smile
+              {homeContent?.whyChooseUs?.heading || "A Warm Welcome and a beautiful Smile"}
             </h2>
             <p className="mt-5 text-brand-gray leading-relaxed max-w-md">
-              Our facily is equppwd with stare of the art techonolahy to measures To ensure the safety of
-              bath our patients and our team doctor Of dentist.
+              {homeContent?.whyChooseUs?.description ||
+                "Our facily is equppwd with stare of the art techonolahy to measures To ensure the safety of bath our patients and our team doctor Of dentist."}
             </p>
 
             <ul className="mt-6 space-y-3">
@@ -508,7 +699,7 @@ export default function Home() {
                 "Oral and Maxillofacial Surgery",
               ].map((item) => (
                 <li key={item} className="flex items-center gap-3 text-sm font-medium text-brand-navy">
-                  <span className="w-5 h-5 rounded-full bg-brand-green flex items-center justify-center shrink-0">
+                  <span className="w-5 h-5 rounded-full flex items-center justify-center shrink-0" style={{ backgroundColor: "#A6CE39" }}>
                     <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
                       <path d="M20 6 9 17l-5-5" />
                     </svg>
@@ -518,19 +709,19 @@ export default function Home() {
               ))}
             </ul>
 
-            <a
-              href="#"
+            <Link
+              to="/doctor"
               className="mt-8 inline-flex items-center gap-2 bg-brand-green hover:bg-brand-green-dark transition-colors text-white text-sm font-semibold px-7 py-4 rounded-xl"
             >
               Get Started
-            </a>
+            </Link>
           </div>
         </div>
       </section>
 
       {/* ---------- SPECIALIST DOCTORS TEAM ---------- */}
       <section className="pt-8 pb-20" style={{ backgroundColor: "#ffffff" }}>
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="max-w-7xl mx-auto pl-[68px] pr-4 sm:pl-[76px] sm:pr-6 lg:pl-[84px] lg:pr-8">
           <div className="flex flex-wrap items-end justify-between gap-6">
             <div>
               <p className="text-brand-green font-semibold text-sm tracking-wide mb-3">| DEDICATED TEAM</p>
@@ -553,7 +744,7 @@ export default function Home() {
                 </svg>
               </button>
               <button
-                onClick={() => setDoctorsPage((p) => Math.min(p + 1, doctors.length - 4))}
+                onClick={() => setDoctorsPage((p) => Math.min(p + 1, Math.max(0, doctorCards.length - 4)))}
                 className="w-11 h-11 rounded-full bg-cream flex items-center justify-center text-brand-green cursor-pointer"
                 aria-label="Next"
               >
@@ -565,14 +756,14 @@ export default function Home() {
           </div>
 
           <div className="mt-16 grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
-            {doctors.slice(doctorsPage, doctorsPage + 4).map((doctor) => (
+            {doctorCards.slice(doctorsPage * 4, doctorsPage * 4 + 4).map((doctor) => (
               <div
-                key={doctor.name}
+                key={doctor._id || doctor.name}
                 className="group relative rounded-2xl bg-white shadow-md hover:shadow-xl pt-16 pb-8 px-6 text-center transition-colors duration-300 cursor-pointer hover:bg-brand-green"
               >
                 <div className="absolute -top-12 left-1/2 -translate-x-1/2 w-28 h-28 rounded-full overflow-hidden ring-4 ring-white shadow-md">
                   <img
-                    src={doctor.photo}
+                    src={doctor.image || doctor.photo}
                     alt={doctor.name}
                     className="w-full h-full object-cover"
                   />
@@ -583,15 +774,15 @@ export default function Home() {
                 <p className="text-sm mb-4 text-brand-gray transition-colors group-hover:text-white/90">
                   {doctor.specialty}
                 </p>
-                <a
-                  href="#"
+                <Link
+                  to={`/doctor/${doctor.slug}`}
                   className="inline-flex items-center gap-1.5 text-sm font-semibold underline underline-offset-2 text-brand-green transition-colors group-hover:text-white"
                 >
                   About More
                   <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
                     <path d="M5 12h14M13 6l6 6-6 6" />
                   </svg>
-                </a>
+                </Link>
               </div>
             ))}
           </div>
@@ -600,28 +791,28 @@ export default function Home() {
 
       {/* ---------- PRICING ---------- */}
       <section className="py-20" style={{ backgroundColor: "#f8faf7" }}>
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+        <div className="max-w-7xl mx-auto pl-[68px] pr-4 sm:pl-[76px] sm:pr-6 lg:pl-[84px] lg:pr-8 text-center">
           <p className="text-brand-green font-semibold text-sm tracking-wide mb-3">| PRICING</p>
           <h2 className="text-3xl sm:text-4xl font-extrabold font-heading text-brand-navy">
             Our Pricing Best Plane
           </h2>
 
           <div className="mt-16 grid md:grid-cols-3 gap-8">
-            {pricingPlans.map((plan) => (
+            {pricingCards.map((plan) => (
               <div
-                key={plan.title}
+                key={plan._id || plan.title}
                 className="group relative rounded-2xl bg-white shadow-md hover:shadow-xl border border-gray-100 hover:border-brand-green p-8 text-left transition-colors duration-300 cursor-pointer hover:bg-brand-green"
               >
                 <div className="flex items-center gap-4">
                   <div className="w-14 h-14 rounded-full bg-gray-100 flex items-center justify-center shrink-0 text-brand-green transition-colors group-hover:bg-white">
-                    <PricingIcon type={plan.iconType} />
+                    <PricingIcon type={plan.iconType || "standard"} size={24} />
                   </div>
                   <div>
                     <h3 className="text-lg font-bold font-heading text-brand-navy transition-colors group-hover:text-white">
-                      {plan.title}
+                      {plan.name || plan.title}
                     </h3>
                     <p className="text-sm text-brand-gray transition-colors group-hover:text-white/90">
-                      {plan.subtitle}
+                      {plan.description || plan.subtitle}
                     </p>
                   </div>
                 </div>
@@ -629,12 +820,12 @@ export default function Home() {
                 <div className="mt-6 pt-6 border-t border-gray-100 group-hover:border-white/20 transition-colors">
                   <p className="text-3xl font-extrabold font-heading text-brand-navy transition-colors group-hover:text-white">
                     {plan.price}
-                    <span className="text-sm font-medium text-brand-gray group-hover:text-white/80">/Month</span>
+                    <span className="text-sm font-medium text-brand-gray group-hover:text-white/80">{plan.billingPeriod || "/Month"}</span>
                   </p>
                 </div>
 
                 <ul className="mt-6 space-y-3">
-                  {plan.features.map((feature, idx) => (
+                  {(plan.features || []).map((feature, idx) => (
                     <li key={idx} className="flex items-center gap-3 text-sm text-brand-navy transition-colors group-hover:text-white">
                       <span className="w-5 h-5 rounded-full flex items-center justify-center shrink-0 transition-colors bg-[#A6CE39] group-hover:bg-white">
                         <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" className="text-white group-hover:text-brand-green transition-colors">
@@ -646,8 +837,11 @@ export default function Home() {
                   ))}
                 </ul>
 
-                <button className="mt-8 w-full bg-brand-green text-white group-hover:bg-white group-hover:text-brand-green transition-colors text-sm font-semibold px-6 py-3.5 rounded-xl">
-                  Book Now
+                <button
+                  onClick={() => setSelectedPlan(plan)}
+                  className="mt-8 w-full block text-center bg-brand-green text-white group-hover:bg-white group-hover:text-brand-green transition-colors text-sm font-semibold px-6 py-3.5 rounded-xl cursor-pointer"
+                >
+                  {plan.ctaText || "Book Now"}
                 </button>
               </div>
             ))}
@@ -657,7 +851,7 @@ export default function Home() {
 
       {/* ---------- FAQ ---------- */}
       <section className="py-20" style={{ backgroundColor: "#ffffff" }}>
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 grid lg:grid-cols-2 gap-14 items-start">
+        <div className="max-w-7xl mx-auto pl-[68px] pr-4 sm:pl-[76px] sm:pr-6 lg:pl-[84px] lg:pr-8 grid lg:grid-cols-2 gap-14 items-start">
           <div>
             <p className="text-brand-green font-semibold text-sm tracking-wide mb-3">| FAQ & ANSWER</p>
             <h2 className="text-3xl sm:text-4xl font-extrabold font-heading text-brand-navy leading-tight">
@@ -670,7 +864,7 @@ export default function Home() {
 
             <div className="mt-8 max-w-md">
               <img
-                src="/images/home4.jpeg"
+                src={homeContent?.faqImage || "/images/home4.jpeg"}
                 alt="Medical team consultation"
                 className="w-full rounded-2xl object-cover"
               />
@@ -720,7 +914,7 @@ export default function Home() {
 
       {/* ---------- TESTIMONIALS ---------- */}
       <section className="py-20" style={{ backgroundColor: "#f8faf7" }}>
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="max-w-7xl mx-auto pl-[68px] pr-4 sm:pl-[76px] sm:pr-6 lg:pl-[84px] lg:pr-8">
           <div className="flex flex-wrap items-end justify-between gap-6">
             <div>
               <p className="text-brand-green font-semibold text-sm tracking-wide mb-3">| TESTIMONIAL</p>
@@ -744,7 +938,7 @@ export default function Home() {
                 </svg>
               </button>
               <button
-                onClick={() => setTestimonialsPage((p) => Math.min(p + 1, testimonials.length - 3))}
+                onClick={() => setTestimonialsPage((p) => Math.min(p + 1, Math.max(0, testimonialCards.length - 3)))}
                 className="w-11 h-11 rounded-full bg-cream flex items-center justify-center text-brand-green cursor-pointer"
                 aria-label="Next"
               >
@@ -756,9 +950,9 @@ export default function Home() {
           </div>
 
           <div className="mt-16 grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
-            {testimonials.slice(testimonialsPage, testimonialsPage + 3).map((t) => (
+            {testimonialCards.slice(testimonialsPage, testimonialsPage + 3).map((t) => (
               <div
-                key={t.name}
+                key={t._id || t.name}
                 className="relative rounded-2xl bg-white shadow-md pt-14 pb-8 px-8 text-center"
               >
                 <div className="absolute -top-8 left-1/2 -translate-x-1/2 w-14 h-14 rounded-full bg-brand-green flex items-center justify-center shadow-md">
@@ -773,7 +967,7 @@ export default function Home() {
 
                 <div className="mt-6 flex items-center justify-center gap-3">
                   <img
-                    src={t.photo}
+                    src={t.image || t.photo || "/images/icon.jpeg"}
                     alt={t.name}
                     className="w-11 h-11 rounded-full object-cover shrink-0"
                   />
@@ -783,7 +977,7 @@ export default function Home() {
                       {t.role}
                     </p>
                     <div className="flex items-center gap-0.5 mt-0.5">
-                      {[...Array(5)].map((_, i) => (
+                      {[...Array(t.rating || 5)].map((_, i) => (
                         <svg key={i} width="11" height="11" viewBox="0 0 24 24" fill="#FBBF24">
                           <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
                         </svg>
@@ -799,37 +993,34 @@ export default function Home() {
 
       {/* ---------- BLOG & NEWS ---------- */}
       <section className="pt-20" style={{ backgroundColor: "#ffffff" }}>
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+        <div className="max-w-7xl mx-auto pl-[68px] pr-4 sm:pl-[76px] sm:pr-6 lg:pl-[84px] lg:pr-8 text-center">
           <p className="text-brand-green font-semibold text-sm tracking-wide mb-3">| LETAST NEWS</p>
           <h2 className="text-3xl sm:text-4xl font-extrabold font-heading text-brand-navy">
             Updated Blog & News
           </h2>
 
           <div className="mt-16 grid md:grid-cols-3 gap-6 text-left">
-            {blogPosts.map((post) => (
-              <div key={post.title} className="rounded-2xl bg-white shadow-md overflow-hidden">
+            {(cmsBlogs.length ? cmsBlogs : blogPosts).map((post) => (
+              <div key={post._id || post.title} className="rounded-2xl bg-white shadow-md overflow-hidden">
                 <div className="relative">
                   <img src={post.image} alt={post.title} className="w-full h-48 object-cover" />
-                  <div className="absolute top-4 left-4 rounded-lg px-3 py-1.5 text-center shadow-md" style={{ backgroundColor: "#A6CE39" }}>
-                    <p className="text-base font-extrabold font-heading text-white leading-none">{post.day}</p>
-                    <p className="text-xs text-white/90 leading-none mt-0.5">{post.month}</p>
-                  </div>
+                  <BlogDateBadge post={post} />
                 </div>
 
                 <div className="p-6">
-                  <div className="flex items-center gap-4 text-xs text-brand-gray mb-3">
+                  <div className="flex items-center justify-between text-xs text-brand-gray mb-3">
                     <span className="flex items-center gap-1.5">
                       <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#A6CE39" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                         <circle cx="12" cy="8" r="4" />
                         <path d="M4 21v-1a8 8 0 0 1 16 0v1" />
                       </svg>
-                      {post.followers}
+                      {post.followers || "0"}
                     </span>
                     <span className="flex items-center gap-1.5">
                       <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#A6CE39" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                        <path d="M21 11.5a8.4 8.4 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.4 8.4 0 0 1-3.8-.9L3 21l1.9-5.7a8.4 8.4 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.4 8.4 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5Z" />
+                        <path d="M21 11.5a8.4 8.4 0 0 1-3.8 7 8.5 8.5 0 0 1-9 .5L3 21l1.9-5.7a8.4 8.4 0 0 1-.9-3.8 8.5 8.5 0 0 1 8.5-8.5h.5a8.48 8.48 0 0 1 8 8v.5Z" />
                       </svg>
-                      {post.comments}
+                      {post.comments || "0 Comments"}
                     </span>
                   </div>
 
@@ -838,15 +1029,15 @@ export default function Home() {
                   </h3>
                   <p className="mt-3 text-sm text-brand-gray leading-relaxed">{post.excerpt}</p>
 
-                  <a
-                    href="#"
+                  <Link
+                    to={post.link || `/blogs/${post.slug}`}
                     className="mt-4 inline-flex items-center gap-1.5 text-sm font-semibold text-brand-green underline underline-offset-2"
                   >
                     About More
                     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
                       <path d="M5 12h14M13 6l6 6-6 6" />
                     </svg>
-                  </a>
+                  </Link>
                 </div>
               </div>
             ))}
@@ -858,7 +1049,7 @@ export default function Home() {
             style={{ backgroundColor: "#E2F6DD" }}
           >
             <img
-              src="/images/subscribe.jpeg"
+              src={homeContent?.subscribeImage || "/images/subscribe.jpeg"}
               alt=""
               className="w-36 h-36 object-contain shrink-0"
             />
@@ -871,22 +1062,41 @@ export default function Home() {
                 Subscribe to our newsletter and receive special offers.
               </p>
 
-              <div className="mt-5 flex items-center bg-white rounded-xl border border-gray-200 focus-within:ring-2 focus-within:ring-brand-green max-w-md pr-1.5">
+              {subscribeStatus && (
+                <p className="mt-3 text-sm font-semibold text-brand-green">{subscribeStatus}</p>
+              )}
+              {subscribeError && (
+                <p className="mt-3 text-sm font-semibold text-red-500">{subscribeError}</p>
+              )}
+
+              <form onSubmit={handleSubscribe} className="mt-5 flex items-center bg-white rounded-xl border border-gray-200 focus-within:ring-2 focus-within:ring-brand-green max-w-md pr-1.5">
                 <input
                   type="email"
+                  required
+                  value={subscribeEmail}
+                  onChange={(e) => {
+                    setSubscribeEmail(e.target.value);
+                    setSubscribeStatus("");
+                    setSubscribeError("");
+                  }}
                   placeholder="Enter your Email Address"
                   className="flex-1 min-w-0 rounded-xl pl-5 py-3.5 text-sm bg-transparent focus:outline-none text-brand-navy placeholder:text-brand-gray"
                 />
-                <button className="bg-brand-green hover:bg-brand-green-dark transition-colors text-white text-sm font-semibold px-6 py-2.5 rounded-lg whitespace-nowrap shrink-0">
-                  Subscribe
+                <button type="submit" disabled={subscribing} className="bg-brand-green hover:bg-brand-green-dark transition-colors text-white text-sm font-semibold px-6 py-2.5 rounded-lg whitespace-nowrap shrink-0 disabled:opacity-60">
+                  {subscribing ? "Subscribing..." : "Subscribe"}
                 </button>
-              </div>
+              </form>
             </div>
           </div>
         </div>
       </section>
 
       <Footer />
+
+      {/* ---------- CHECKOUT MODAL ---------- */}
+      {selectedPlan && (
+        <PlanSelectionModal plan={selectedPlan} onClose={() => setSelectedPlan(null)} />
+      )}
     </div>
   );
 }

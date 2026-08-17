@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { Link } from "react-router-dom";
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
 
@@ -55,28 +56,32 @@ const features = [
 
 const team = [
   {
-    name: "Christopher Dyer",
-    specialty: "Heart Specialist",
+    name: "Dr. Christopher Dyer",
+    specialty: "Cardiologist",
     photo:
-      "https://plus.unsplash.com/premium_photo-1661740497193-6aeca35e1b01?w=300&h=300&fit=crop&crop=faces&auto=format&q=80",
+      "https://images.unsplash.com/photo-1582750433449-648ed127bb54?w=300&h=300&fit=crop&crop=faces&auto=format&q=80",
+    slug: "christopher-dyer",
   },
   {
-    name: "Madeleine Bond",
-    specialty: "Cancer Specialist",
+    name: "Dr. Madeleine Bond",
+    specialty: "Oncologist",
     photo:
-      "https://images.unsplash.com/photo-1758691463582-11aea602cd4a?w=300&h=300&fit=crop&crop=faces&auto=format&q=80",
+      "https://images.unsplash.com/photo-1573497019940-1c28c88b4f3e?w=300&h=300&fit=crop&crop=faces&auto=format&q=80",
+    slug: "madeleine-bond",
   },
   {
-    name: "Bermadette Carr",
+    name: "Dr. Bermadette Carr",
     specialty: "General Medicine",
     photo:
-      "https://plus.unsplash.com/premium_photo-1667520580687-a85c9080a9bc?w=300&h=300&fit=crop&crop=faces&auto=format&q=80",
+      "https://images.unsplash.com/photo-1580489944761-15a19d654956?w=300&h=300&fit=crop&crop=faces&auto=format&q=80",
+    slug: "bermadette-carr",
   },
   {
-    name: "Nichalas Allan",
-    specialty: "Dentist Surgeon",
+    name: "Dr. Nichalas Allan",
+    specialty: "Dental Surgeon",
     photo:
-      "https://plus.unsplash.com/premium_photo-1702598946543-b70f1059b055?w=300&h=300&fit=crop&crop=faces&auto=format&q=80",
+      "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=300&h=300&fit=crop&crop=faces&auto=format&q=80",
+    slug: "nichalas-allan",
   },
 ];
 
@@ -143,7 +148,12 @@ export default function AboutUs() {
   const [teamPage, setTeamPage] = useState(0);
 
   return (
-    <div className="w-full overflow-x-hidden">
+    <div className="about-page w-full overflow-x-hidden">
+      <style>{`@import url('https://fonts.googleapis.com/css2?family=DM+Serif+Display&display=swap');
+        .about-page h1, .about-page h2, .about-page h3, .about-page h4 {
+          font-family: 'DM Serif Display', serif;
+          font-weight: 400;
+        }`}</style>
       <Navbar />
 
       {/* ---------- HERO ---------- */}
@@ -163,15 +173,15 @@ export default function AboutUs() {
               MedCare brings together specialists across general medicine, dentistry, paediatrics and ENT —
               so your whole family gets the right care, in one place, without the runaround.
             </p>
-            <a
-              href="#"
+            <Link
+              to="/contact"
               className="mt-7 inline-flex items-center gap-2 bg-brand-green hover:bg-brand-green-dark transition-colors text-white text-sm font-semibold px-7 py-4 rounded-xl"
             >
               Book Appointment
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
                 <path d="M5 12h14M13 6l6 6-6 6" />
               </svg>
-            </a>
+            </Link>
           </div>
 
           <div className="relative">
@@ -346,15 +356,15 @@ export default function AboutUs() {
                 <p className="text-sm mb-4 text-brand-gray transition-colors group-hover:text-white/90">
                   {doctor.specialty}
                 </p>
-                <a
-                  href="#"
+                <Link
+                  to={`/doctor/${doctor.slug}`}
                   className="inline-flex items-center gap-1.5 text-sm font-semibold underline underline-offset-2 text-brand-green transition-colors group-hover:text-white"
                 >
                   About More
                   <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
                     <path d="M5 12h14M13 6l6 6-6 6" />
                   </svg>
-                </a>
+                </Link>
               </div>
             ))}
           </div>
@@ -373,15 +383,15 @@ export default function AboutUs() {
                 Book an appointment with our specialists today and take the first step towards better health.
               </p>
             </div>
-            <a
-              href="#"
+            <Link
+              to="/contact"
               className="inline-flex items-center gap-2 bg-white text-brand-green hover:bg-cream transition-colors text-sm font-semibold px-8 py-4 rounded-xl shrink-0"
             >
               Book Appointment
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
                 <path d="M5 12h14M13 6l6 6-6 6" />
               </svg>
-            </a>
+            </Link>
           </div>
         </div>
       </section>

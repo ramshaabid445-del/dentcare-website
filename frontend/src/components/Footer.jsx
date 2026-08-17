@@ -25,9 +25,9 @@ const socialIcons = [
 
 export default function Footer() {
   return (
-    <footer style={{ backgroundColor: "#1a331b" }} className="pt-40 pb-6 text-white">
+<footer style={{ backgroundColor: "#1a331b" }} className="pt-24 sm:pt-32 md:pt-40 pb-6 text-white">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="grid md:grid-cols-2 lg:grid-cols-6 gap-10">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-6 gap-10">
           <div className="lg:col-span-2">
             <div className="flex items-center gap-2">
               <div

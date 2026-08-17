@@ -3,7 +3,9 @@ import nodemailer from "nodemailer";
 // Create reusable transporter
 const createTransporter = () => {
   return nodemailer.createTransport({
-    service: "gmail",
+    host: "smtp.gmail.com",
+    port: 465,
+    secure: true,
     // Force IPv4 only. Railway containers often lack IPv6 outbound support,
     // which causes "connect ENETUNREACH <ipv6-address>" errors on Gmail SMTP.
     family: 4,
@@ -11,12 +13,6 @@ const createTransporter = () => {
       user: process.env.MAIL_USER,
       pass: process.env.MAIL_APP_PASSWORD,
     },
-    // FALLBACK: If port 465 (implicit TLS) still fails on Railway, switch to
-    // port 587 with STARTTLS, which is sometimes more reliable on cloud hosts:
-    //   host: "smtp.gmail.com",
-    //   port: 587,
-    //   secure: false, // upgrade to TLS via STARTTLS
-    //   family: 4,
   });
 };
 
@@ -27,26 +23,21 @@ export const sendAppointmentNotification = async (appointment) => {
     console.log("Email Config - USER:", process.env.MAIL_USER ? "✓ SET" : "✗ NOT SET");
     console.log("Email Config - PASSWORD:", process.env.MAIL_APP_PASSWORD ? "✓ SET" : "✗ NOT SET");
     console.log("Email Config - ADMIN_EMAIL:", process.env.ADMIN_EMAIL);
-
     if (!process.env.MAIL_USER || !process.env.MAIL_APP_PASSWORD) {
       console.error("❌ Email credentials not configured. Skipping email notification.");
       return { success: false, reason: "Email not configured" };
     }
-
     const transporter = createTransporter();
-
     // Test connection
     console.log("🔗 Testing email connection...");
     await transporter.verify();
     console.log("✓ Email connection verified");
-
     const appointmentDate = new Date(appointment.date).toLocaleDateString("en-US", {
       weekday: "long",
       year: "numeric",
       month: "long",
       day: "numeric",
     });
-
     const htmlContent = `
       <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
         <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 30px; border-radius: 8px 8px 0 0; text-align: center;">
@@ -95,7 +86,6 @@ export const sendAppointmentNotification = async (appointment) => {
               </tr>
             </table>
           </div>
-
           ${
             appointment.message
               ? `
@@ -106,13 +96,11 @@ export const sendAppointmentNotification = async (appointment) => {
           `
               : ""
           }
-
           <div style="background: #e7f3ff; padding: 15px; border-radius: 6px; margin: 20px 0; border-left: 4px solid #2196F3;">
             <p style="margin: 0; color: #1565c0; font-size: 14px;">
               <strong>📌 Action Required:</strong> Please review and confirm this appointment in your admin dashboard to send a confirmation email to the patient.
             </p>
           </div>
-
           <hr style="border: none; border-top: 1px solid #e9ecef; margin: 20px 0;">
           
           <p style="color: #6c757d; font-size: 12px; margin: 10px 0; text-align: center;">
@@ -121,14 +109,12 @@ export const sendAppointmentNotification = async (appointment) => {
         </div>
       </div>
     `;
-
     const mailOptions = {
       from: `"${process.env.MAIL_FROM_NAME || "MedCare"}" <${process.env.MAIL_USER}>`,
       to: process.env.ADMIN_EMAIL || process.env.MAIL_USER,
       subject: `New Appointment Booking – MedCare | ${appointment.department}`,
       html: htmlContent,
     };
-
     console.log("📬 Sending email to:", mailOptions.to);
     const info = await transporter.sendMail(mailOptions);
     console.log("✅ Appointment notification email sent successfully! Message ID:", info.messageId);
@@ -147,23 +133,19 @@ export const sendAppointmentConfirmation = async (appointment, status = "confirm
       console.warn("Email credentials not configured. Skipping confirmation email.");
       return { success: false, reason: "Email not configured" };
     }
-
     const transporter = createTransporter();
-
     const appointmentDate = new Date(appointment.date).toLocaleDateString("en-US", {
       weekday: "long",
       year: "numeric",
       month: "long",
       day: "numeric",
     });
-
     const statusMessage =
       status === "confirmed"
         ? "Your appointment has been confirmed!"
         : status === "cancelled"
           ? "Your appointment has been cancelled."
           : "Your appointment status has been updated.";
-
     const htmlContent = `
       <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
         <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 30px; border-radius: 8px 8px 0 0; text-align: center;">
@@ -177,7 +159,6 @@ export const sendAppointmentConfirmation = async (appointment, status = "confirm
           <p style="color: #333; font-size: 14px; line-height: 1.6;">
             ${statusMessage}
           </p>
-
           <div style="background: white; padding: 20px; border-radius: 6px; margin: 20px 0; border-left: 4px solid #667eea;">
             <h2 style="color: #333; margin-top: 0; font-size: 16px;">Appointment Details</h2>
             
@@ -196,17 +177,14 @@ export const sendAppointmentConfirmation = async (appointment, status = "confirm
               </tr>
             </table>
           </div>
-
           <div style="background: #e8f5e9; padding: 15px; border-radius: 6px; margin: 20px 0; border-left: 4px solid #4caf50; text-align: center;">
             <p style="margin: 0; color: #2e7d32; font-size: 14px; font-weight: bold;">
               ✓ Status: <span style="text-transform: uppercase;">${status}</span>
             </p>
           </div>
-
           <p style="color: #666; font-size: 14px; line-height: 1.6;">
             If you need to reschedule or cancel your appointment, please contact us as soon as possible.
           </p>
-
           <hr style="border: none; border-top: 1px solid #e9ecef; margin: 20px 0;">
           
           <p style="color: #6c757d; font-size: 12px; margin: 10px 0; text-align: center;">
@@ -215,14 +193,12 @@ export const sendAppointmentConfirmation = async (appointment, status = "confirm
         </div>
       </div>
     `;
-
     const mailOptions = {
       from: `"${process.env.MAIL_FROM_NAME || "MedCare"}" <${process.env.MAIL_USER}>`,
       to: appointment.email,
       subject: `Appointment ${status.charAt(0).toUpperCase() + status.slice(1)} – MedCare`,
       html: htmlContent,
     };
-
     const info = await transporter.sendMail(mailOptions);
     console.log("Appointment confirmation email sent:", info.messageId);
     return { success: true };

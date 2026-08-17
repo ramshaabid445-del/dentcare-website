@@ -4,10 +4,19 @@ import nodemailer from "nodemailer";
 const createTransporter = () => {
   return nodemailer.createTransport({
     service: "gmail",
+    // Force IPv4 only. Railway containers often lack IPv6 outbound support,
+    // which causes "connect ENETUNREACH <ipv6-address>" errors on Gmail SMTP.
+    family: 4,
     auth: {
       user: process.env.MAIL_USER,
       pass: process.env.MAIL_APP_PASSWORD,
     },
+    // FALLBACK: If port 465 (implicit TLS) still fails on Railway, switch to
+    // port 587 with STARTTLS, which is sometimes more reliable on cloud hosts:
+    //   host: "smtp.gmail.com",
+    //   port: 587,
+    //   secure: false, // upgrade to TLS via STARTTLS
+    //   family: 4,
   });
 };
 

@@ -417,7 +417,10 @@ export default function Home() {
           letter-spacing: -0.01em;
           line-height: 1.15;
         }
-        .home-page p, .home-page li, .home-page span, .home-page a {
+        .home-page p:not(.navbar-scope p),
+        .home-page li:not(.navbar-scope li),
+        .home-page span:not(.navbar-scope span),
+        .home-page a:not(.navbar-scope a) {
           font-family: 'Roboto', sans-serif;
         }
         .home-page p.text-brand-gray {
@@ -432,13 +435,13 @@ export default function Home() {
       <Navbar />
 
       {/* ---------- HERO ---------- */}
-      <section className="pt-32 bg-cream">
-        <div className="max-w-7xl mx-auto pl-[68px] pr-4 sm:pl-[76px] sm:pr-6 lg:pl-[84px] lg:pr-8 pb-28 grid lg:grid-cols-2 gap-10 items-center">
+      <section className="pt-32 lg:pt-24 bg-cream">
+        <div className="max-w-7xl mx-auto pl-[68px] pr-4 sm:pl-[76px] sm:pr-6 lg:pl-[84px] lg:pr-8 pb-28 lg:pb-16 grid lg:grid-cols-2 gap-10 lg:gap-4 items-center">
           <div>
-            <h1 className="text-4xl sm:text-5xl font-extrabold font-heading leading-tight text-brand-navy">
+            <h1 className="text-4xl sm:text-5xl lg:max-w-[560px] font-extrabold font-heading leading-tight text-brand-navy">
               {homeContent?.hero?.heading || "We Care About Your Dental Health"}
             </h1>
-            <p className="mt-5 text-brand-gray leading-relaxed max-w-md">
+            <p className="mt-5 text-brand-gray leading-relaxed max-w-md lg:max-w-lg">
               {homeContent?.hero?.description ||
                 "We have implemented a number of Safety protocols and measures To ensure the safety of bath our patients and our team doctor Of dentist also very good doctor for dental problems"}
             </p>
@@ -463,7 +466,7 @@ export default function Home() {
         </div>
 
         {/* search bar */}
-        <div className="max-w-7xl mx-auto pl-[68px] pr-4 sm:pl-[76px] sm:pr-6 lg:pl-[84px] lg:pr-8 -mt-16 relative z-30">
+        <div className="max-w-7xl mx-auto pl-[68px] pr-4 sm:pl-[76px] sm:pr-6 lg:pl-[84px] lg:pr-8 -mt-16 lg:-mt-12 relative z-30">
           <div className="bg-white rounded-2xl shadow-xl p-5 sm:p-6">
             <div className="flex flex-wrap gap-2 pb-4 mb-4 border-b border-gray-100 text-sm font-medium">
               {[
@@ -565,7 +568,7 @@ export default function Home() {
         <div className="max-w-7xl mx-auto pl-[68px] pr-4 sm:pl-[76px] sm:pr-6 lg:pl-[84px] lg:pr-8 text-center">
           <p className="text-brand-green font-semibold text-sm tracking-wide mb-3">| OUR SERVICES</p>
           <h2 className="text-3xl sm:text-4xl font-extrabold font-heading text-brand-navy max-w-2xl mx-auto">
-            Best Medical Services Makes You Happy
+            Best Medical Services Makes You <br />Happy
           </h2>
           <p className="mt-4 text-brand-gray max-w-2xl mx-auto leading-relaxed">
             We have implemented a number of Safety protocols and measures To ensure the safety of bath our
@@ -645,7 +648,7 @@ export default function Home() {
           <div>
             <p className="text-brand-green font-semibold text-sm tracking-wide mb-3">| ABOUT US</p>
             <h2 className="text-3xl sm:text-4xl font-extrabold font-heading text-brand-navy leading-tight">
-              Find The Right Doctor Right At Your Fingertips
+              Find The Right Doctor <br />Right At Your Fingertips
             </h2>
             <p className="mt-5 text-brand-gray leading-relaxed max-w-md">
               We have implemented a number of Safety protocols and measures To ensure the safety of bath our
@@ -685,7 +688,7 @@ export default function Home() {
           <div>
             <p className="text-brand-green font-semibold text-sm tracking-wide mb-3">| WHY CHOOSE US</p>
             <h2 className="text-3xl sm:text-4xl font-extrabold font-heading text-brand-navy leading-tight">
-              {homeContent?.whyChooseUs?.heading || "A Warm Welcome and a beautiful Smile"}
+              {homeContent?.whyChooseUs?.heading || <>A Warm Welcome <br />and a beautiful Smile</>}
             </h2>
             <p className="mt-5 text-brand-gray leading-relaxed max-w-md">
               {homeContent?.whyChooseUs?.description ||
@@ -855,7 +858,7 @@ export default function Home() {
           <div>
             <p className="text-brand-green font-semibold text-sm tracking-wide mb-3">| FAQ & ANSWER</p>
             <h2 className="text-3xl sm:text-4xl font-extrabold font-heading text-brand-navy leading-tight">
-              Frequently Asked Questions
+              Frequently Asked <br />Questions
             </h2>
             <p className="mt-5 text-brand-gray leading-relaxed max-w-md">
               We have implemented a number of Safety protocols and measures To ensure the safety of bath our

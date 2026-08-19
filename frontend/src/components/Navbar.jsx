@@ -104,7 +104,7 @@ export default function Navbar() {
         }
       `}</style>
 
-      <nav className="max-w-7xl mx-auto flex items-center justify-between gap-4 px-4 sm:px-6 lg:px-8 py-5">
+      <nav className="navbar-scope max-w-7xl mx-auto flex items-center justify-between gap-4 px-4 sm:px-6 lg:px-8 py-5">
         <Link to="/" className="flex items-center gap-1 shrink-0">
           <img
             src="/images/icon.jpeg"

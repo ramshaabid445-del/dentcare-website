@@ -157,7 +157,7 @@ export default function AdminLayout() {
             <h1 className="text-lg font-heading text-brand-navy truncate">Admin Dashboard</h1>
           </div>
           <div className="flex items-center gap-3 shrink-0">
-            <NotificationBell />
+            <NotificationBell role="admin" />
             <div className="text-right hidden sm:block">
               <p className="text-sm font-semibold text-brand-navy truncate">{user?.name}</p>
               <p className="text-xs text-brand-green capitalize">{user?.role}</p>

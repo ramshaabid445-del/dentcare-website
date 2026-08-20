@@ -1,7 +1,10 @@
 import { Resend } from "resend";
 
-// Initialize Resend client (uses HTTPS API on port 443, not SMTP)
-const resend = new Resend(process.env.RESEND_API_KEY);
+// Initialize Resend only when email configuration is available.
+const getResendClient = () => {
+  if (!process.env.RESEND_API_KEY) return null;
+  return new Resend(process.env.RESEND_API_KEY);
+};
 
 // Send appointment notification to admin
 export const sendAppointmentNotification = async (appointment) => {
@@ -9,7 +12,8 @@ export const sendAppointmentNotification = async (appointment) => {
     console.log("📧 Attempting to send appointment notification...");
     console.log("Email Config - RESEND_API_KEY:", process.env.RESEND_API_KEY ? "✓ SET" : "✗ NOT SET");
     console.log("Email Config - ADMIN_EMAIL:", process.env.ADMIN_EMAIL);
-    if (!process.env.RESEND_API_KEY) {
+    const resend = getResendClient();
+    if (!resend) {
       console.error("❌ Resend API key not configured. Skipping email notification.");
       return { success: false, reason: "Email not configured" };
     }
@@ -113,7 +117,8 @@ export const sendAppointmentNotification = async (appointment) => {
 // Send appointment confirmation email to patient
 export const sendAppointmentConfirmation = async (appointment, status = "confirmed") => {
   try {
-    if (!process.env.RESEND_API_KEY) {
+    const resend = getResendClient();
+    if (!resend) {
       console.warn("Resend API key not configured. Skipping confirmation email.");
       return { success: false, reason: "Email not configured" };
     }

@@ -2,7 +2,7 @@ import { Router } from "express";
 import { validationResult } from "express-validator";
 import { requireAuth, requireAdmin } from "../middleware/authMiddleware.js";
 import { appointmentValidator } from "../validators/appointmentValidators.js";
-import { createAppointment, getMyAppointments, getMyAppointmentStats, createContactMessage, createComment, getAdminAppointments, getAdminContacts, getAdminComments, updateCommentStatus, deleteComment, getApprovedComments, updateAppointmentStatus, subscribeToNewsletter, getAdminSubscribers, deleteAdminSubscriber } from "../controllers/engagementController.js";
+import { createAppointment, getMyAppointments, getMyAppointmentStats, getNotifications, createContactMessage, createComment, getAdminAppointments, deleteAdminAppointment, getAdminContacts, getAdminComments, updateCommentStatus, deleteComment, getApprovedComments, updateAppointmentStatus, subscribeToNewsletter, getAdminSubscribers, deleteAdminSubscriber } from "../controllers/engagementController.js";
 
 const router = Router();
 
@@ -19,7 +19,9 @@ const handleValidation = (req, res, next) => {
 router.post("/appointments", requireAuth, appointmentValidator, handleValidation, createAppointment);
 router.get("/appointments/me", requireAuth, getMyAppointments);
 router.get("/appointments/me/stats", requireAuth, getMyAppointmentStats);
+router.get("/notifications", requireAuth, getNotifications);
 router.put("/admin/appointments/:id", requireAuth, requireAdmin, updateAppointmentStatus);
+router.delete("/admin/appointments/:id", requireAuth, requireAdmin, deleteAdminAppointment);
 
 // Contact message routes
 router.post("/contact-messages", createContactMessage);

@@ -51,6 +51,65 @@ export const getMyAppointmentStats = async (req, res) => {
   res.json({ stats: { total, upcoming, completed } });
 };
 
+export const getNotifications = async (req, res) => {
+  try {
+    if (req.user.role === "admin") {
+      const [appointments, subscribers, comments] = await Promise.all([
+        Appointment.find().sort({ createdAt: -1 }).limit(10).lean(),
+        Subscriber.find().sort({ createdAt: -1 }).limit(10).lean(),
+        Comment.find({ status: "pending" }).sort({ createdAt: -1 }).limit(10).lean(),
+      ]);
+      const notifications = [
+        ...appointments.map((appointment) => ({
+          id: `appointment-${appointment._id}`,
+          title: "New appointment activity",
+          message: `${appointment.name} has a ${appointment.status} appointment for ${appointment.department}.`,
+          createdAt: appointment.createdAt,
+        })),
+        ...subscribers.map((subscriber) => ({
+          id: `subscriber-${subscriber._id}`,
+          title: "New newsletter subscriber",
+          message: `${subscriber.email} subscribed to the newsletter.`,
+          createdAt: subscriber.createdAt || subscriber.subscribedAt,
+        })),
+        ...comments.map((comment) => ({
+          id: `comment-${comment._id}`,
+          title: "Comment awaiting approval",
+          message: `${comment.name} submitted a comment for review.`,
+          createdAt: comment.createdAt,
+        })),
+      ]
+        .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
+        .slice(0, 20);
+      return res.json({ notifications });
+    }
+
+    const [appointments, comments] = await Promise.all([
+      Appointment.find({ user: req.user._id }).sort({ updatedAt: -1 }).limit(10).lean(),
+      Comment.find({ user: req.user._id }).sort({ updatedAt: -1 }).limit(10).lean(),
+    ]);
+    const notifications = [
+      ...appointments.map((appointment) => ({
+        id: `appointment-${appointment._id}`,
+        title: "Appointment update",
+        message: `Your ${appointment.department} appointment is ${appointment.status}.`,
+        createdAt: appointment.updatedAt || appointment.createdAt,
+      })),
+      ...comments.map((comment) => ({
+        id: `comment-${comment._id}`,
+        title: "Comment update",
+        message: `Your comment was ${comment.status}.`,
+        createdAt: comment.updatedAt || comment.createdAt,
+      })),
+    ]
+      .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
+      .slice(0, 20);
+    res.json({ notifications });
+  } catch (error) {
+    res.status(500).json({ message: error.message || "Failed to load notifications" });
+  }
+};
+
 export const createContactMessage = async (req, res) => {
   try {
     const message = await ContactMessage.create(req.body);
@@ -66,6 +125,18 @@ export const createComment = async (req, res) => {
 };
 
 export const getAdminAppointments = async (req, res) => res.json({ appointments: await Appointment.find().sort({ createdAt: -1 }) });
+
+export const deleteAdminAppointment = async (req, res) => {
+  try {
+    const appointment = await Appointment.findByIdAndDelete(req.params.id);
+    if (!appointment) {
+      return res.status(404).json({ message: "Appointment not found" });
+    }
+    res.json({ message: "Appointment deleted successfully" });
+  } catch (error) {
+    res.status(400).json({ message: error.message || "Failed to delete appointment" });
+  }
+};
 
 export const updateAppointmentStatus = async (req, res) => {
   try {

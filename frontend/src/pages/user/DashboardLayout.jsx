@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { Link, Outlet, useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
+import NotificationBell from "../../components/NotificationBell";
 
 const navItems = [
   { label: "Overview", to: "/dashboard", icon: "overview" },
@@ -54,7 +55,7 @@ export default function DashboardLayout() {
               to={item.to}
               onClick={() => setMobileOpen(false)}
               className={`flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-semibold transition-colors ${
-                isActive ? "bg-brand-green text-white" : "text-white/70 hover:bg-white/10 hover:text-white"
+                isActive ? "bg-brand-green text-white" : "text-brand-navy hover:bg-brand-green hover:text-white"
               }`}
             >
               <NavIcon type={item.icon} />
@@ -84,7 +85,7 @@ export default function DashboardLayout() {
       <style>{`@import url('https://fonts.googleapis.com/css2?family=Fraunces:wght@600;700;800&family=Inter:wght@400;500;600;700&display=swap');`}</style>
 
       {/* Desktop Sidebar */}
-      <aside className="hidden md:flex flex-col w-64 bg-brand-navy text-white shrink-0">
+      <aside className="hidden md:flex flex-col w-64 bg-cream text-brand-navy shrink-0">
         {sidebarContent}
       </aside>
 
@@ -98,7 +99,7 @@ export default function DashboardLayout() {
 
       {/* Mobile Sidebar Drawer */}
       <div
-        className={`fixed inset-y-0 left-0 z-50 w-72 bg-brand-navy text-white transform transition-transform duration-300 md:hidden ${
+        className={`fixed inset-y-0 left-0 z-50 w-72 bg-cream text-brand-navy transform transition-transform duration-300 md:hidden ${
           mobileOpen ? "translate-x-0" : "-translate-x-full"
         }`}
       >
@@ -137,6 +138,7 @@ export default function DashboardLayout() {
             <h1 className="text-lg font-heading text-brand-navy truncate">My Dashboard</h1>
           </div>
           <div className="flex items-center gap-3 shrink-0">
+            <NotificationBell />
             <div className="text-right hidden sm:block">
               <p className="text-sm font-semibold text-brand-navy truncate">{user?.name}</p>
               <p className="text-xs text-brand-gray capitalize">{user?.role}</p>

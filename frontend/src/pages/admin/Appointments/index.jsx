@@ -6,6 +6,7 @@ export default function AdminAppointments() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [updating, setUpdating] = useState(null);
+  const [deleting, setDeleting] = useState(null);
   const [statusFilter, setStatusFilter] = useState("all");
 
   const loadAppointments = async () => {
@@ -35,6 +36,19 @@ export default function AdminAppointments() {
       setError(err.message || "Failed to update appointment");
     } finally {
       setUpdating(null);
+    }
+  };
+
+  const handleDelete = async (appointmentId) => {
+    if (!window.confirm("Delete this appointment?")) return;
+    try {
+      setDeleting(appointmentId);
+      await api.deleteAppointment(appointmentId);
+      setAppointments((current) => current.filter((appointment) => appointment._id !== appointmentId));
+    } catch (err) {
+      setError(err.message || "Failed to delete appointment");
+    } finally {
+      setDeleting(null);
     }
   };
 
@@ -157,7 +171,7 @@ export default function AdminAppointments() {
                   <select
                     value={apt.status}
                     onChange={(e) => handleStatusUpdate(apt._id, e.target.value)}
-                    disabled={updating === apt._id}
+                    disabled={updating === apt._id || deleting === apt._id}
                     className="px-3 py-2 border border-gray-200 rounded-lg text-sm bg-white disabled:opacity-60 cursor-pointer"
                   >
                     <option value="pending">Pending</option>
@@ -165,6 +179,14 @@ export default function AdminAppointments() {
                     <option value="completed">Completed</option>
                     <option value="cancelled">Cancelled</option>
                   </select>
+                  <button
+                    type="button"
+                    onClick={() => handleDelete(apt._id)}
+                    disabled={deleting === apt._id || updating === apt._id}
+                    className="px-3 py-2 rounded-lg text-sm font-semibold text-red-600 border border-red-200 hover:bg-red-50 disabled:opacity-60 disabled:cursor-not-allowed"
+                  >
+                    {deleting === apt._id ? "Deleting..." : "Delete"}
+                  </button>
                 </div>
               </div>
 

@@ -55,7 +55,7 @@ export default function AdminLayout() {
 
   const sidebarContent = (
     <>
-      <div className="px-6 py-6 border-b border-white/10">
+      <div className="px-6 py-6 border-b border-brand-navy/10">
         <Link to="/" className="flex items-center gap-2">
           <img src="/images/icon.jpeg" alt="MedCare logo" className="w-10 h-10 object-contain" />
           <span className="text-xl font-bold font-heading">
@@ -84,10 +84,10 @@ export default function AdminLayout() {
         })}
       </nav>
 
-      <div className="px-4 py-6 border-t border-white/10">
+      <div className="px-4 py-6 border-t border-brand-navy/10">
         <button
           onClick={handleLogout}
-          className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-semibold text-white/70 hover:bg-red-500/20 hover:text-red-300 transition-colors"
+          className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-semibold text-brand-navy hover:bg-red-500/20 hover:text-red-600 transition-colors"
         >
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
             <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
@@ -100,11 +100,11 @@ export default function AdminLayout() {
   );
 
   return (
-    <div className="min-h-screen bg-[#f8faf7] flex">
+    <div className="h-screen overflow-hidden bg-[#f8faf7] flex">
       <style>{`@import url('https://fonts.googleapis.com/css2?family=Fraunces:wght@600;700;800&family=Inter:wght@400;500;600;700&display=swap');`}</style>
 
       {/* Desktop Sidebar */}
-      <aside className="hidden lg:flex flex-col w-64 bg-cream text-brand-navy shrink-0">
+      <aside className="hidden lg:flex h-screen flex-col w-64 bg-cream text-brand-navy shrink-0">
         {sidebarContent}
       </aside>
 
@@ -139,7 +139,7 @@ export default function AdminLayout() {
       </div>
 
       {/* Main */}
-      <div className="flex-1 flex flex-col min-w-0">
+      <div className="flex-1 flex flex-col min-w-0 min-h-0">
         {/* Topbar */}
         <header className="bg-white shadow-sm px-4 sm:px-6 py-4 flex items-center justify-between gap-4">
           <div className="flex items-center gap-3 min-w-0">

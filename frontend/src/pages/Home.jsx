@@ -436,7 +436,7 @@ export default function Home() {
 
       {/* ---------- HERO ---------- */}
       <section className="pt-32 lg:pt-24 bg-cream">
-        <div className="max-w-7xl mx-auto pl-[68px] pr-4 sm:pl-[76px] sm:pr-6 lg:pl-[84px] lg:pr-8 pb-28 lg:pb-16 grid lg:grid-cols-2 gap-10 lg:gap-4 items-center">
+        <div className="max-w-7xl mx-auto pl-4 pr-4 sm:pl-6 sm:pr-6 lg:pl-[84px] lg:pr-8 pb-28 lg:pb-16 grid lg:grid-cols-2 gap-10 lg:gap-4 items-center">
           <div>
             <h1 className="text-4xl sm:text-5xl lg:max-w-[560px] font-extrabold font-heading leading-tight text-brand-navy">
               {homeContent?.hero?.heading || "We Care About Your Dental Health"}
@@ -466,7 +466,7 @@ export default function Home() {
         </div>
 
         {/* search bar */}
-        <div className="max-w-7xl mx-auto pl-[68px] pr-4 sm:pl-[76px] sm:pr-6 lg:pl-[84px] lg:pr-8 -mt-16 lg:-mt-12 relative z-30">
+        <div className="max-w-7xl mx-auto pl-4 pr-4 sm:pl-6 sm:pr-6 lg:pl-[84px] lg:pr-8 -mt-16 lg:-mt-12 relative z-30">
           <div className="bg-white rounded-2xl shadow-xl p-5 sm:p-6">
             <div className="flex flex-wrap gap-2 pb-4 mb-4 border-b border-gray-100 text-sm font-medium">
               {[
@@ -565,7 +565,7 @@ export default function Home() {
 
       {/* ---------- SERVICES ---------- */}
       <section className="py-20 bg-white">
-        <div className="max-w-7xl mx-auto pl-[68px] pr-4 sm:pl-[76px] sm:pr-6 lg:pl-[84px] lg:pr-8 text-center">
+        <div className="max-w-7xl mx-auto pl-4 pr-4 sm:pl-6 sm:pr-6 lg:pl-[84px] lg:pr-8 text-center">
           <p className="text-brand-green font-semibold text-sm tracking-wide mb-3">| OUR SERVICES</p>
           <h2 className="text-3xl sm:text-4xl font-extrabold font-heading text-brand-navy max-w-2xl mx-auto">
             Best Medical Services Makes You <br />Happy
@@ -644,7 +644,7 @@ export default function Home() {
 
       {/* ---------- ABOUT US ---------- */}
       <section className="py-20 bg-about-bg">
-        <div className="max-w-7xl mx-auto pl-[68px] pr-4 sm:pl-[76px] sm:pr-6 lg:pl-[84px] lg:pr-8 grid lg:grid-cols-2 gap-14 items-center">
+        <div className="max-w-7xl mx-auto pl-4 pr-4 sm:pl-6 sm:pr-6 lg:pl-[84px] lg:pr-8 grid lg:grid-cols-2 gap-14 items-center">
           <div>
             <p className="text-brand-green font-semibold text-sm tracking-wide mb-3">| ABOUT US</p>
             <h2 className="text-3xl sm:text-4xl font-extrabold font-heading text-brand-navy leading-tight">
@@ -676,7 +676,7 @@ export default function Home() {
 
       {/* ---------- WHY CHOOSE US ---------- */}
       <section className="py-20" style={{ backgroundColor: "#ffffff" }}>
-        <div className="max-w-7xl mx-auto pl-[68px] pr-4 sm:pl-[76px] sm:pr-6 lg:pl-[84px] lg:pr-8 grid lg:grid-cols-2 gap-14 items-center">
+        <div className="max-w-7xl mx-auto pl-4 pr-4 sm:pl-6 sm:pr-6 lg:pl-[84px] lg:pr-8 grid lg:grid-cols-2 gap-14 items-center">
           <div className="relative flex justify-center lg:justify-start">
             <img
               src={homeContent?.whyChooseUs?.image || "/images/home3.jpeg"}
@@ -724,7 +724,7 @@ export default function Home() {
 
       {/* ---------- SPECIALIST DOCTORS TEAM ---------- */}
       <section className="pt-8 pb-20" style={{ backgroundColor: "#ffffff" }}>
-        <div className="max-w-7xl mx-auto pl-[68px] pr-4 sm:pl-[76px] sm:pr-6 lg:pl-[84px] lg:pr-8">
+        <div className="max-w-7xl mx-auto pl-4 pr-4 sm:pl-6 sm:pr-6 lg:pl-[84px] lg:pr-8">
           <div className="flex flex-wrap items-end justify-between gap-6">
             <div>
               <p className="text-brand-green font-semibold text-sm tracking-wide mb-3">| DEDICATED TEAM</p>
@@ -794,7 +794,7 @@ export default function Home() {
 
       {/* ---------- PRICING ---------- */}
       <section className="py-20" style={{ backgroundColor: "#f8faf7" }}>
-        <div className="max-w-7xl mx-auto pl-[68px] pr-4 sm:pl-[76px] sm:pr-6 lg:pl-[84px] lg:pr-8 text-center">
+        <div className="max-w-7xl mx-auto pl-4 pr-4 sm:pl-6 sm:pr-6 lg:pl-[84px] lg:pr-8 text-center">
           <p className="text-brand-green font-semibold text-sm tracking-wide mb-3">| PRICING</p>
           <h2 className="text-3xl sm:text-4xl font-extrabold font-heading text-brand-navy">
             Our Pricing Best Plane
@@ -854,7 +854,7 @@ export default function Home() {
 
       {/* ---------- FAQ ---------- */}
       <section className="py-20" style={{ backgroundColor: "#ffffff" }}>
-        <div className="max-w-7xl mx-auto pl-[68px] pr-4 sm:pl-[76px] sm:pr-6 lg:pl-[84px] lg:pr-8 grid lg:grid-cols-2 gap-14 items-start">
+        <div className="max-w-7xl mx-auto pl-4 pr-4 sm:pl-6 sm:pr-6 lg:pl-[84px] lg:pr-8 grid lg:grid-cols-2 gap-14 items-start">
           <div>
             <p className="text-brand-green font-semibold text-sm tracking-wide mb-3">| FAQ & ANSWER</p>
             <h2 className="text-3xl sm:text-4xl font-extrabold font-heading text-brand-navy leading-tight">
@@ -917,7 +917,7 @@ export default function Home() {
 
       {/* ---------- TESTIMONIALS ---------- */}
       <section className="py-20" style={{ backgroundColor: "#f8faf7" }}>
-        <div className="max-w-7xl mx-auto pl-[68px] pr-4 sm:pl-[76px] sm:pr-6 lg:pl-[84px] lg:pr-8">
+        <div className="max-w-7xl mx-auto pl-4 pr-4 sm:pl-6 sm:pr-6 lg:pl-[84px] lg:pr-8">
           <div className="flex flex-wrap items-end justify-between gap-6">
             <div>
               <p className="text-brand-green font-semibold text-sm tracking-wide mb-3">| TESTIMONIAL</p>
@@ -996,7 +996,7 @@ export default function Home() {
 
       {/* ---------- BLOG & NEWS ---------- */}
       <section className="pt-20" style={{ backgroundColor: "#ffffff" }}>
-        <div className="max-w-7xl mx-auto pl-[68px] pr-4 sm:pl-[76px] sm:pr-6 lg:pl-[84px] lg:pr-8 text-center">
+        <div className="max-w-7xl mx-auto pl-4 pr-4 sm:pl-6 sm:pr-6 lg:pl-[84px] lg:pr-8 text-center">
           <p className="text-brand-green font-semibold text-sm tracking-wide mb-3">| LETAST NEWS</p>
           <h2 className="text-3xl sm:text-4xl font-extrabold font-heading text-brand-navy">
             Updated Blog & News
